@@ -1,11 +1,14 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
+const sequelize = require('./../../libs/sequelize');
 
 class ProductsService {
 
   constructor() {
     this.products = [];
     this.generate();
+    // this.pool = pool;
+    // this.pool.on('error', (err) => console.error(err));
   }
 
   generate() {
@@ -22,13 +25,13 @@ class ProductsService {
     }
   }
 
-  index() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(this.products);
-      }, 2000);
-    });
-    return this.products;
+  async index() {
+    // const client = await getConnection();
+    // const rta = await client.query('SELECT * FROM tasks');
+    // const query = 'SELECT * FROM products ';
+    const query = 'SELECT * FROM tasks';
+    const [data] = await sequelize.query(query);
+    return {data};
   }
 
   find(id) {

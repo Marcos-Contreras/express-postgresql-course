@@ -1,77 +1,73 @@
 const express = require('express');
 const router = express.Router();
-const { faker } = require('@faker-js/faker');
+const UsersService = require('./../services/user.service');
+const service = new UsersService();
+const validatorHandler = require('./../middlewares/validator.handler');
+const { createUserSchema, updateUserSchema, getUserSchema } = require('./../schemas/user.schema')
 
-router.get('/', (req, res) => {
-  let users = [];
-  const { limit = 5 } = req.query;
-
-  for (let index = 0; index < limit; index++) {
-    users.push(
-      {
-        name: faker.person.fullName(),
-        gender: faker.person.gender()
-      }
-    );
-  }
-console.log(users);
-
+router.get('/', async (req, res) => {
+  const users = await service.index();
   res.json(
-    {
       users
+  );
+});
+
+router.get('/:id',
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const product = await service.find(id);
+
+      res.json(product);
+    } catch (error) {
+      // executes the error middleware explicitly
+      next(error);
     }
-    );
-});
+  }
+);
 
+router.post('/',
+  validatorHandler(createUserSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+      const newProduct = await service.create(data);
+      res.status(201).json(newProduct);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
+router.patch('/:id',
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const body = req.body;
+      const updatedProduct = await service.update(id, body);
+      res.json(updatedProduct);
+    } catch(error) {
+      next(error);
+    }
 
-  res.json({
-    id: id,
-    name: 'Marcos',
-    gender: 'male'
-  });
-});
+  }
+);
 
-router.post('/', (req, res) => {
- const body = req.body;
+router.delete('/:id',
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const deletedProduct = await service.destroy(id);
 
- res.json({
-   message: 'created',
-   data: body
- })
-});
-
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
-
-  res.json({
-    id: id,
-    data: body,
-    message: 'updated'
-  })
-});
-
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const body = req.body;
-
-  res.json({
-    id: id,
-    data: body,
-    message: 'updated'
-  })
-});
-
-router.delete('/:id', (req, res) => {
-  const { id } = req. params;
-
-  res.json({
-    message: 'deleted',
-    id: id
-  });
-});
+      res.json(deletedProduct);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
