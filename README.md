@@ -1,2 +1,3 @@
 # express-postgresql-course
-Express api implementing postreSQL with Docker and Sequelized ORM
+Express API implementing postreSQL with Docker and Sequelized ORM.
+The API uses all of the database relationship types and integrates migration simulating a purchase orders manager.
