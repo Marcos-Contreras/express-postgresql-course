@@ -6,7 +6,9 @@ const { models } = require('./../../libs/sequelize');
 class UsersService {
 
   async index() {
-    const users = await models.User.findAll();
+    const users = await models.User.findAll({
+      include: ['customer']
+    });
     return users;
   }
 
